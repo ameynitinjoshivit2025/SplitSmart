@@ -1,7 +1,7 @@
-from flask import Flask, render_template, redirect, url_for, session, request
+from flask import Flask, render_template, redirect, url_for, request, session
 
 app = Flask(__name__)
-app.secret_key = "supersecretkey"  # For session
+app.secret_key = 'supersecretkey'  # Needed for session management
 
 @app.route("/")
 def home():
@@ -11,17 +11,13 @@ def home():
     account_details = "Balance: $245.67 | Premium Member"
     return render_template("index.html", username=username, account_details=account_details)
 
-@app.route("/login")
+@app.route("/login", methods=["GET", "POST"])
 def login():
+    if request.method == "POST":
+        # In a real app you'd validate login here
+        session["username"] = request.form["username"]
+        return redirect(url_for("home"))
     return render_template("login.html")
-
-@app.route("/set_user", methods=["POST"])
-def set_user():
-    username = request.json.get("username")
-    if username:
-        session["username"] = username
-        return {"status": "success"}, 200
-    return {"status": "error", "message": "Username required"}, 400
 
 @app.route("/logout")
 def logout():

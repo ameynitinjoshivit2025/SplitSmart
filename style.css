@@ -1,64 +1,120 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f5f4f3;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #e0f7fa, #80deea);
+  color: #004d40;
 }
 
+/* Header */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  border-bottom: 1px solid #004d40;
+}
+
+.app-name {
+  font-weight: 700;
+  font-size: 1.8rem;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.dropdown-button {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background-color: white;
+  min-width: 200px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+  padding: 10px;
+  z-index: 1;
+  color: #004d40;
+}
+
+.dropdown-content p {
+  margin: 0;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.dropdown-content p:last-child {
+  border-bottom: none;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+/* Main Content */
+main {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 80px);
+}
+
+.welcome-message {
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+/* Login/Signup Forms */
 .form-container {
-    background-color: rgba(255, 255, 255, 0.756);
-    padding: 60px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px #aaa;
-    width: 250px;
-    display: flex;
-    flex-direction: column;
+  background: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  width: 300px;
+  margin: 100px auto;
+  text-align: center;
 }
 
 .hidden {
-    display: none;
+  display: none;
 }
 
-h2 {
-    text-align: center;
-}
-
-input {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 5px;
-    border: 1px solid #ccc;
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"] {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 4px;
+  border: 1px solid #ccc;
 }
 
 button {
-    padding: 10px;
-    background-color: #1a9c09;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+  background-color: #004d40;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
 }
 
 button:hover {
-    background-color: #0056b3;
-}
-
-p {
-    text-align: center;
+  background-color: #00695c;
 }
 
 a {
-    color: #007bff;
-    cursor: pointer;
-}
-.app-title {
-    text-align: center;
-    font-size: 35px;
-    color: #007bff;
-    margin-top: 0;
-    margin-bottom: 10px;
-    font-weight: bold;
+  color: #00796b;
+  text-decoration: none;
 }

@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SplitSmart</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f2f3;
+      color: #004d40;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      border-bottom: 1px solid #dbecec;
+      background-color: #ffffff;
+    }
+    .app-name {
+      font-weight: 700;
+      font-size: 1.8rem;
+    }
+
+    .account-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+.account-button {
+      background-color: #004d40;
+      color: white;
+      padding: 10px 16px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .account-button:hover {
+      background-color: #00796b;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: white;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+      z-index: 1;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .dropdown-content a {
+      color: #004d40;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      font-size: 0.95rem;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #f1f1f1;
+    }
+
+    .show {
+      display: block;
+    }
+    .container {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 80px);
+    }
+    .sidebar {
+      width: 300px;
+      background-color: #ffffff;
+      border-right: 1px solid #ccc;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .sidebar h2 {
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+    }
+    .trip-list {
+      list-style-type: none;
+      padding: 0;
+      margin-bottom: 30px;
+    }
+    .trip-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding: 10px;
+      background-color: #e0f7fa;
+      border-radius: 5px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .trip-list li:hover {
+      background-color: #b2ebf2;
+    }
+    .trip-name {
+      flex: 1;
+      cursor: pointer;
+    }
+    .rename-btn, .delete-btn {
+      margin-left: 6px;
+      padding: 4px 6px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      background-color: transparent;
+      font-size: 0.9rem;
+    }
+    .rename-btn:hover {
+      color: #00796b;
+    }
+    .delete-btn:hover {
+      color: #d32f2f;
+    }
+    .add-trip-btn {
+      display: inline-block;
+      padding: 10px 16px;
+      margin-top: 10px;
+      background-color: #004d40;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+    .add-trip-btn:hover {
+      background-color: #00796b;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .trip-details {
+      padding: 30px;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      max-width: 700px;
+      width: 100%;
+      text-align: left;
+    }
+    .trip-details h2 {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+      color: #004d40;
+    }
+    .trip-details p {
+      font-size: 1rem;
+      margin: 8px 0;
+    }
+    .welcome-message {
+      font-size: 2rem;
+      font-weight: 600;
+      text-align: center;
+    }
+    .bills-list {
+      margin-top: 20px;
+    }
+    .bills-list ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    .bills-list li {
+      background: #e0f2f1;
+      margin-bottom: 12px;
+      padding: 12px;
+      border-radius: 5px;
+    }
+    .bill-members-list {
+      margin-top: 8px;
+      padding-left: 15px;
+    }
+    .bill-members-list li {
+      font-size: 0.9rem;
+      padding: 3px 0;
+      display: flex;
+      justify-content: space-between;
+    }
+    .add-bill-btn {
+      margin-top: 20px;
+      padding: 10px 16px;
+      background-color: #00796b;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .add-bill-btn:hover {
+      background-color: #004d40;
+    }
+
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+      background-color: white;
+      margin: 5% auto;
+      padding: 30px;
+      border-radius: 10px;
+      width: 450px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    .close:hover {
+      color: #000;
+    }
+    form label {
+      margin-top: 10px;
+      font-weight: 500;
+      display: block;
+    }
+    form input, form select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    form button {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #004d40;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      width: 100%;
+    }
+    form button:hover {
+      background-color: #00796b;
+    }
+
+    /* Dynamic Member-Paid rows in Bill Modal */
+    .member-paid-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  align-items: center;
+}
+.member-paid-row input[type="text"] {
+  flex: 3;             /* biggest */
+  padding: 8px;
+  font-size: 1rem;
+}
+.member-paid-row input[type="number"] {
+  flex: 1.2;           /* medium */
+  padding: 8px;
+  font-size: 1rem;
+}
+.member-paid-row button.remove-member-paid {
+  background: #d32f2f;
+  border: none;
+  color: white;
+  padding: 4px 8px;    /* smaller padding */
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.85rem;  /* smaller font */
+  line-height: 1;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.member-paid-row button.remove-member-paid:hover {
+  background: #a02727;
+}
+
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="app-name">SplitSmart</div>
+    <div class="account-dropdown">
+      <button class="account-button" onclick="toggleAccountDropdown()">👤 Account ▾</button>
+      <div class="dropdown-content" id="accountDropdown">
+        <a href="#">Profile</a>
+        <a href="#">Settings</a>
+        <a href="#">Logout</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <aside class="sidebar">
+      <h2>My Trips</h2>
+      <ul class="trip-list" id="trip-list"></ul>
+      <button class="add-trip-btn" onclick="openTripModal()">+ Add Trip</button>
+    </aside>
+
+    <main>
+      <div id="tripDetails" class="trip-details">
+        <div class="welcome-message">Welcome to SplitSmart!</div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modals -->
+  <div id="tripModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeTripModal()">&times;</span>
+      <h2>Add New Trip</h2>
+      <form id="tripForm">
+        <label for="tripName">Trip Name:</label>
+        <input type="text" id="tripName" required />
+        <button type="submit">Add Trip</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="billModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeBillModal()">&times;</span>
+      <h2>Add Bill</h2>
+      <form id="billForm">
+        <label for="billName">Bill Description:</label>
+        <input type="text" id="billName" required />
+
+        <label for="billTotalAmount">Total Amount (₹):</label>
+        <input type="number" id="billTotalAmount" min="0.01" step="0.01" required />
+
+        <div id="membersPaidContainer">
+          <label>Members Who Paid:</label>
+          <!-- Dynamic member-paid rows inserted here -->
+        </div>
+
+        <button type="button" class="add-member-paid-btn" id="addMemberPaidBtn">+ Add Member Paid</button>
+        <button type="submit">Add Bill</button>
+      </form>
+    </div>
+  </div>
+
+<script>
+    // ✅ Get stored username
+const username = localStorage.getItem("username");
+
+// ✅ Optional: Set a welcome message using username
+if (username) {
+  const appNameElem = document.querySelector(".app-name");
+  if (appNameElem) {
+    appNameElem.textContent = `SplitSmart – Welcome, ${username}`;
+  }
+}
+
+  let trips = [];
+  let selectedTripId = null;
+  let tripIdCounter = 1;
+  let billIdCounter = 1;
+
+  const tripListElem = document.getElementById("trip-list");
+  const tripDetailsElem = document.getElementById("tripDetails");
+
+  function toggleAccountDropdown() {
+      document.getElementById("accountDropdown").classList.toggle("show");
+    }
+  // Modal open/close
+  function openTripModal() {
+    document.getElementById("tripModal").style.display = "block";
+  }
+  function closeTripModal() {
+    document.getElementById("tripModal").style.display = "none";
+    document.getElementById("tripForm").reset();
+  }
+
+  function openBillModal() {
+    if (selectedTripId === null) {
+      alert("Select a trip first");
+      return;
+    }
+    document.getElementById("billModal").style.display = "block";
+    resetBillForm();
+  }
+  function closeBillModal() {
+    document.getElementById("billModal").style.display = "none";
+    document.getElementById("billForm").reset();
+    clearMemberPaidRows();
+  }
+
+  // Reset Bill form dynamic parts
+  function resetBillForm() {
+    clearMemberPaidRows();
+    addMemberPaidRow(); // start with one member-paid row
+  }
+  function clearMemberPaidRows() {
+    const container = document.getElementById("membersPaidContainer");
+    container.querySelectorAll(".member-paid-row").forEach(row => row.remove());
+  }
+
+  // Add a new member-paid input row
+  function addMemberPaidRow(name = '', amount = '') {
+    const container = document.getElementById("membersPaidContainer");
+    const row = document.createElement("div");
+    row.className = "member-paid-row";
+
+    const nameInput = document.createElement("input");
+    nameInput.type = "text";
+    nameInput.placeholder = "Member Name";
+    nameInput.value = name;
+    nameInput.required = true;
+
+    const amountInput = document.createElement("input");
+    amountInput.type = "number";
+    amountInput.placeholder = "Amount Paid";
+    amountInput.min = "0";
+    amountInput.step = "0.01";
+    amountInput.value = amount;
+    amountInput.required = true;
+
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "remove-member-paid";
+    removeBtn.textContent = "×";
+    removeBtn.title = "Remove";
+    removeBtn.onclick = () => {
+      row.remove();
+    };
+
+    row.appendChild(nameInput);
+    row.appendChild(amountInput);
+    row.appendChild(removeBtn);
+    container.appendChild(row);
+  }
+
+  document.getElementById("addMemberPaidBtn").addEventListener("click", () => {
+    addMemberPaidRow();
+  });
+
+  // Calculate the total amount paid by members in a bill
+  function sumMemberPaidAmounts(memberPaidRows) {
+    return memberPaidRows.reduce((sum, row) => {
+      const val = parseFloat(row.querySelector('input[type="number"]').value);
+      return sum + (isNaN(val) ? 0 : val);
+    }, 0);
+  }
+
+  // Add Trip handlers
+  document.getElementById("tripForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const name = document.getElementById("tripName").value.trim();
+    if (!name) {
+      alert("Enter valid trip name");
+      return;
+    }
+    // Add new trip
+    const newTrip = {
+      id: tripIdCounter++,
+      name,
+      bills: [],
+    };
+    trips.push(newTrip);
+    closeTripModal();
+    renderTrips();
+    selectTrip(newTrip.id);
+  });
+
+  // Add Bill handlers
+  document.getElementById("billForm").addEventListener("submit", e => {
+    e.preventDefault();
+
+    const billName = document.getElementById("billName").value.trim();
+    const billTotalAmount = parseFloat(document.getElementById("billTotalAmount").value);
+
+    if (!billName) {
+      alert("Enter bill description");
+      return;
+    }
+    if (isNaN(billTotalAmount) || billTotalAmount <= 0) {
+      alert("Enter valid total amount");
+      return;
+    }
+
+    const memberPaidRows = Array.from(document.querySelectorAll(".member-paid-row"));
+
+    if (memberPaidRows.length === 0) {
+      alert("Add at least one member who paid");
+      return;
+    }
+
+    // Extract members paid info
+    const membersPaid = [];
+
+    for (const row of memberPaidRows) {
+      const nameInput = row.querySelector('input[type="text"]');
+      const amountInput = row.querySelector('input[type="number"]');
+      const memberName = nameInput.value.trim();
+      const paidAmount = parseFloat(amountInput.value);
+
+      if (!memberName) {
+        alert("Member name cannot be empty");
+        return;
+      }
+      if (isNaN(paidAmount) || paidAmount < 0) {
+        alert("Invalid amount for " + memberName);
+        return;
+      }
+      membersPaid.push({ name: memberName, amount: paidAmount });
+    }
+
+    const totalPaid = membersPaid.reduce((acc, mp) => acc + mp.amount, 0);
+
+    if (Math.abs(totalPaid - billTotalAmount) > 0.01) {
+      alert(`Total paid by members (${totalPaid.toFixed(2)}) does not match the bill amount (${billTotalAmount.toFixed(2)})`);
+      return;
+    }
+
+    // Add bill to selected trip
+    const trip = trips.find(t => t.id === selectedTripId);
+    if (!trip) {
+      alert("Selected trip not found");
+      return;
+    }
+
+    trip.bills.push({
+      id: billIdCounter++,
+      description: billName,
+      totalAmount: billTotalAmount,
+      membersPaid,
+    });
+
+    closeBillModal();
+    renderTripDetails(selectedTripId);
+  });
+
+  // Render trip list
+  function renderTrips() {
+    tripListElem.innerHTML = '';
+    trips.forEach(trip => {
+      const li = document.createElement("li");
+
+      const span = document.createElement("span");
+      span.className = "trip-name";
+      span.textContent = trip.name;
+      span.onclick = () => selectTrip(trip.id);
+
+      // Rename button
+      const renameBtn = document.createElement("button");
+      renameBtn.className = "rename-btn";
+      renameBtn.textContent = "✏️";
+      renameBtn.title = "Rename Trip";
+      renameBtn.onclick = (e) => {
+        e.stopPropagation();
+        renameTrip(trip.id);
+      };
+
+      // Delete button
+      const deleteBtn = document.createElement("button");
+      deleteBtn.className = "delete-btn";
+      deleteBtn.textContent = "🗑️";
+      deleteBtn.title = "Delete Trip";
+      deleteBtn.onclick = (e) => {
+        e.stopPropagation();
+        deleteTrip(trip.id);
+      };
+
+      li.appendChild(span);
+      li.appendChild(renameBtn);
+      li.appendChild(deleteBtn);
+
+      tripListElem.appendChild(li);
+    });
+  }
+
+  // Select trip
+  function selectTrip(tripId) {
+    selectedTripId = tripId;
+    renderTripDetails(tripId);
+  }
+
+  // Rename trip
+  function renameTrip(tripId) {
+    const newName = prompt("Enter new trip name:");
+    if (!newName) return;
+    const trip = trips.find(t => t.id === tripId);
+    if (trip) {
+      trip.name = newName.trim();
+      renderTrips();
+      if (selectedTripId === tripId) {
+        renderTripDetails(tripId);
+      }
+    }
+  }
+
+  // Delete trip
+  function deleteTrip(tripId) {
+    if (!confirm("Are you sure you want to delete this trip?")) return;
+    trips = trips.filter(t => t.id !== tripId);
+    if (selectedTripId === tripId) {
+      selectedTripId = null;
+      tripDetailsElem.innerHTML = '<div class="welcome-message">Welcome to SplitSmart!</div>';
+    }
+    renderTrips();
+  }
+
+  // Calculate balances for a trip
+  function calculateBalances(trip) {
+    // Collect all member names who paid or appear in bills
+    const allMembersSet = new Set();
+    trip.bills.forEach(bill => {
+      bill.membersPaid.forEach(mp => allMembersSet.add(mp.name));
+    });
+    const allMembers = Array.from(allMembersSet);
+
+    // Calculate total spent by each member
+    const memberSpent = {};
+    allMembers.forEach(m => memberSpent[m] = 0);
+
+    trip.bills.forEach(bill => {
+      // Each bill total split evenly among members who participated in that bill
+      const participants = Array.from(new Set(bill.membersPaid.map(mp => mp.name)));
+      const splitAmount = bill.totalAmount / participants.length;
+
+      // Everyone owes splitAmount for this bill
+      participants.forEach(participant => {
+        memberSpent[participant] -= splitAmount;
+      });
+
+      // But members who paid get credited their paid amount
+      bill.membersPaid.forEach(mp => {
+        memberSpent[mp.name] += mp.amount;
+      });
+    });
+
+    return memberSpent; // positive = they paid more than their share, negative = owe money
+  }
+
+  // Render trip details (bills, balances)
+  function renderTripDetails(tripId) {
+    const trip = trips.find(t => t.id === tripId);
+    if (!trip) {
+      tripDetailsElem.innerHTML = '<div class="welcome-message">Trip not found.</div>';
+      return;
+    }
+
+    let html = `<h2>${trip.name}</h2>`;
+
+    if (trip.bills.length === 0) {
+      html += `<p>No bills added yet.</p>`;
+    } else {
+      html += `<div class="bills-list"><h3>Bills:</h3><ul>`;
+      trip.bills.forEach(bill => {
+        html += `<li>
+          <strong>${bill.description}</strong> — ₹${bill.totalAmount.toFixed(2)}
+          <ul class="bill-members-list">`;
+        bill.membersPaid.forEach(mp => {
+          html += `<li><span>${mp.name}</span><span>₹${mp.amount.toFixed(2)}</span></li>`;
+        });
+        html += `</ul></li>`;
+      });
+      html += `</ul></div>`;
+    }
+
+    // Balances
+    const balances = calculateBalances(trip);
+
+    html += `<h3>Balances:</h3>`;
+    if (Object.keys(balances).length === 0) {
+      html += `<p>No members added yet.</p>`;
+    } else {
+      html += `<ul>`;
+      Object.entries(balances).forEach(([member, balance]) => {
+        if (balance > 0.01) {
+          html += `<li><strong>${member}</strong> should receive ₹${balance.toFixed(2)}</li>`;
+        } else if (balance < -0.01) {
+          html += `<li><strong>${member}</strong> owes ₹${(-balance).toFixed(2)}</li>`;
+        } else {
+          html += `<li><strong>${member}</strong> is settled up</li>`;
+        }
+      });
+      html += `</ul>`;
+    }
+
+    html += `<button class="add-bill-btn" onclick="openBillModal()">+ Add Bill</button>`;
+
+    tripDetailsElem.innerHTML = html;
+  }
+
+  // Initial rendering
+  renderTrips();
+
+  // Close modal on clicking outside
+  window.onclick = function(event) {
+    const tripModal = document.getElementById("tripModal");
+    const billModal = document.getElementById("billModal");
+    if (event.target === tripModal) {
+      closeTripModal();
+    }
+    if (event.target === billModal) {
+      closeBillModal();
+    }
+  };
+</script>
+
+</body>
+</html>

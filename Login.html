@@ -8,7 +8,7 @@
     <div class="form-container" id="login-form">
         <h1 class="app-title">SplitSmart</h1>
         <h2>Login</h2>
-        <input type="text" id="login-identifier" placeholder="Email or Phone Number" required>
+        <input type="text" id="login-identifier" placeholder="Username" required>
         <input type="password" id="login-password" placeholder="Password" required>
         <button onclick="login()">Login</button>
         <p>New user? <a href="#" onclick="showSignUp()">Sign up here</a></p>
@@ -26,6 +26,48 @@
         <p>Already have an account? <a href="#" onclick="showLogin()">Login here</a></p>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+  function login() {
+    const identifier = document.getElementById("login-identifier").value;
+
+    if (!identifier) {
+      alert("Please enter your username or email.");
+      return;
+    }
+
+    // Simulate login and send to Flask
+    fetch("/set_user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username: identifier }),
+    })
+      .then(response => {
+        if (response.ok) {
+          window.location.href = "/";
+        } else {
+          alert("Login failed.");
+        }
+      })
+      .catch(error => console.error("Login error:", error));
+  }
+
+  function showSignUp() {
+    document.getElementById("login-form").classList.add("hidden");
+    document.getElementById("signup-form").classList.remove("hidden");
+  }
+
+  function showLogin() {
+    document.getElementById("signup-form").classList.add("hidden");
+    document.getElementById("login-form").classList.remove("hidden");
+  }
+
+  function signup() {
+    // You can implement registration logic here
+    alert("Registration is not yet implemented.");
+  }
+</script>
+
 </body>
 </html>

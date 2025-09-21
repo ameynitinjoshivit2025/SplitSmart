@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SplitSmart</title>
+  <title>SplitSmart with Settle Up</title>
   <style>
-    /* Your existing styles ... */
     body, html {
       margin: 0;
       padding: 0;
@@ -27,40 +26,6 @@
     .app-name {
       font-weight: 700;
       font-size: 1.8rem;
-    }
-    .dropdown {
-      position: relative;
-      display: inline-block;
-      cursor: pointer;
-    }
-    .dropdown-button {
-      font-size: 1rem;
-      font-weight: 500;
-    }
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      right: 0;
-      top: 100%;
-      background-color: white;
-      min-width: 200px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      border-radius: 5px;
-      padding: 10px;
-      z-index: 1;
-      color: #004d40;
-    }
-    .dropdown-content p {
-      margin: 0;
-      padding: 8px 0;
-      border-bottom: 1px solid #eee;
-      font-size: 0.9rem;
-    }
-    .dropdown-content p:last-child {
-      border-bottom: none;
-    }
-    .dropdown:hover .dropdown-content {
-      display: block;
     }
     .container {
       display: flex;
@@ -101,8 +66,7 @@
       flex: 1;
       cursor: pointer;
     }
-    .rename-btn,
-    .delete-btn {
+    .rename-btn, .delete-btn {
       margin-left: 6px;
       padding: 4px 6px;
       border: none;
@@ -168,37 +132,33 @@
       font-weight: 600;
       text-align: center;
     }
-
-    /* Bills list */
-    .bills-list {
+    .members-list, .bills-list {
       margin-top: 20px;
     }
-    .bills-list ul {
+    .members-list ul, .bills-list ul {
       list-style-type: none;
       padding: 0;
     }
-    .bills-list li {
+    .members-list li, .bills-list li {
       background: #e0f2f1;
-      padding: 8px 10px;
       margin-bottom: 6px;
+      padding: 8px;
       border-radius: 5px;
-      font-size: 0.95rem;
       display: flex;
       justify-content: space-between;
-      align-items: center;
     }
-    .add-bill-btn {
+    .add-members-btn, .add-bill-btn, .settle-btn {
       margin-top: 15px;
       padding: 8px 12px;
-      background-color: #004d40;
+      background-color: #00796b;
       color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
       font-size: 1rem;
     }
-    .add-bill-btn:hover {
-      background-color: #00796b;
+    .add-members-btn:hover, .add-bill-btn:hover, .settle-btn:hover {
+      background-color: #004d40;
     }
 
     /* Modal styles */
@@ -254,39 +214,34 @@
     form button:hover {
       background-color: #00796b;
     }
+    .settlement-list {
+      margin-top: 20px;
+      background: #fff8e1;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .settlement-list ul {
+      list-style: none;
+      padding: 0;
+    }
+    .settlement-list li {
+      padding: 6px 0;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
   <header>
-    <div class="app-name">SplitSmart</div>
-    <div class="dropdown">
-      <div class="dropdown-button">John Doe ▼</div>
-      <div class="dropdown-content">
-        <p><strong>Username:</strong> John Doe</p>
-        <p><strong>Account:</strong> Premium</p>
-        <p><a href="#" style="color: #00796b; text-decoration: none;">Logout</a></p>
-      </div>
-    </div>
+    <div class="app-name">SplitSmart — Settle Up</div>
   </header>
 
-  <!-- Container -->
   <div class="container">
-    <!-- Sidebar -->
     <aside class="sidebar">
       <h2>My Trips</h2>
       <ul class="trip-list" id="trip-list"></ul>
-
       <button class="add-trip-btn" onclick="openTripModal()">+ Add Trip</button>
-
-      <div class="amounts">
-        <p id="amountOwed">Amount Owed: ₹0</p>
-        <p id="amountCollect">To Collect: ₹0</p>
-      </div>
     </aside>
 
-    <!-- Main Panel -->
     <main>
       <div id="tripDetails" class="trip-details">
         <div class="welcome-message">Welcome to SplitSmart!</div>
@@ -294,46 +249,50 @@
     </main>
   </div>
 
-  <!-- Add Trip Modal -->
+  <!-- Modals -->
   <div id="tripModal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeTripModal()">&times;</span>
       <h2>Add New Trip</h2>
       <form id="tripForm">
         <label for="tripName">Trip Name:</label>
-        <input type="text" id="tripName" name="tripName" required>
-
-        <label for="tripAmount">Initial Amount (₹):</label>
-        <input type="number" id="tripAmount" name="tripAmount" required>
-
+        <input type="text" id="tripName" required>
+        <label for="tripAmount">Initial Bill Amount (₹):</label>
+        <input type="number" id="tripAmount" required>
         <button type="submit">Add Trip</button>
       </form>
     </div>
   </div>
 
-  <!-- Add Bill Modal -->
+  <div id="membersModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeMembersModal()">&times;</span>
+      <h2>Add Member</h2>
+      <form id="membersForm">
+        <label for="memberName">Member Name:</label>
+        <input type="text" id="memberName" required>
+        <label for="memberPaid">Already Paid (₹):</label>
+        <input type="number" id="memberPaid" name="memberPaid" value="0" required>
+        <button type="submit">Add Member</button>
+      </form>
+    </div>
+  </div>
+
   <div id="billModal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeBillModal()">&times;</span>
       <h2>Add Bill</h2>
       <form id="billForm">
         <label for="billName">Bill Description:</label>
-        <input type="text" id="billName" name="billName" required>
-
+        <input type="text" id="billName" required>
         <label for="billAmount">Amount (₹):</label>
-        <input type="number" id="billAmount" name="billAmount" required>
-
+        <input type="number" id="billAmount" required>
         <button type="submit">Add Bill</button>
       </form>
     </div>
   </div>
 
   <script>
-    let totalOwed = 0;
-    let totalToCollect = 0;
-
-    // Global trips array with structure:
-    // { id, name, bills: [{name, amount}], total }
     let trips = [];
     let selectedTripId = null;
     let tripIdCounter = 1;
@@ -341,226 +300,267 @@
     const tripListElem = document.getElementById("trip-list");
     const tripDetailsElem = document.getElementById("tripDetails");
 
-    // Modals
-    const tripModal = document.getElementById("tripModal");
-    const billModal = document.getElementById("billModal");
-
     function openTripModal() {
-      tripModal.style.display = "block";
+      document.getElementById("tripModal").style.display = "block";
     }
     function closeTripModal() {
-      tripModal.style.display = "none";
+      document.getElementById("tripModal").style.display = "none";
       document.getElementById("tripForm").reset();
+    }
+    function openMembersModal() {
+      if (selectedTripId === null) {
+        alert("Select a trip first");
+        return;
+      }
+      document.getElementById("membersModal").style.display = "block";
+    }
+    function closeMembersModal() {
+      document.getElementById("membersModal").style.display = "none";
+      document.getElementById("membersForm").reset();
     }
     function openBillModal() {
       if (selectedTripId === null) {
-        alert("Please select a trip first.");
+        alert("Select a trip first");
         return;
       }
-      billModal.style.display = "block";
+      document.getElementById("billModal").style.display = "block";
     }
     function closeBillModal() {
-      billModal.style.display = "none";
+      document.getElementById("billModal").style.display = "none";
       document.getElementById("billForm").reset();
     }
 
-    // Update global owed/toCollect amounts across all trips
-    function recalcGlobalAmounts() {
-      totalOwed = 0;
-      totalToCollect = 0;
-      trips.forEach(trip => {
-        totalOwed += Math.floor(trip.total / 2);
-        totalToCollect += Math.ceil(trip.total / 2);
+    function recalcTrip(trip) {
+      const total = trip.bills.reduce((sum, b) => sum + b.amount, 0);
+      trip.total = total;
+
+      const num = trip.members.length;
+      if (num === 0) {
+        return {
+          total,
+          share: 0,
+          balances: []
+        };
+      }
+      const share = total / num;
+
+      // compute balances: how much each member has paid minus share
+      const balances = trip.members.map(m => {
+        return {
+          name: m.name,
+          paid: m.paid,
+          balance: m.paid - share
+        };
       });
-      // Adjust if toCollect is sum of ceil but owed sum of floor, just keep toCollect positive
-      updateAmountsDisplay();
+
+      return {
+        total,
+        share,
+        balances
+      };
     }
 
-    function updateAmountsDisplay() {
-      document.getElementById("amountOwed").textContent = `Amount Owed: ₹${totalOwed}`;
-      document.getElementById("amountCollect").textContent = `To Collect: ₹${totalToCollect}`;
+    function computeSettlements(balances) {
+      // balances: array of { name, paid, balance }
+      const settleList = [];
+      // separate creditors and debtors
+      const creditors = balances.filter(b => b.balance > 0).map(b => ({ name: b.name, amount: b.balance }));
+      const debtors = balances.filter(b => b.balance < 0).map(b => ({ name: b.name, amount: -b.balance })); // positive amounts owed
+
+      // sort creditors descending, debtors descending
+      creditors.sort((a,b)=> b.amount - a.amount);
+      debtors.sort((a,b)=> b.amount - a.amount);
+
+      let i = 0, j = 0;
+      while (i < debtors.length && j < creditors.length) {
+        const debtor = debtors[i];
+        const creditor = creditors[j];
+        const payAmt = Math.min(debtor.amount, creditor.amount);
+
+        if (payAmt > 0) {
+          settleList.push(`${debtor.name} pays ${creditor.name} ₹${payAmt.toFixed(2)}`);
+          debtor.amount -= payAmt;
+          creditor.amount -= payAmt;
+        }
+
+        if (debtor.amount === 0) i++;
+        if (creditor.amount === 0) j++;
+      }
+
+      return settleList;
     }
 
-    // Create sidebar trip element
+    function showTripDetails(trip) {
+      const { total, share, balances } = recalcTrip(trip);
+
+      let billsHtml = "<div class='bills-list'><h3>Bills:</h3><ul>";
+      trip.bills.forEach(b => {
+        billsHtml += `<li>${b.name} — ₹${b.amount}</li>`;
+      });
+      billsHtml += "</ul></div>";
+
+      let membersHtml = "<div class='members-list'><h3>Members:</h3><ul>";
+      if (trip.members.length > 0) {
+        trip.members.forEach(m => {
+          membersHtml += `<li>${m.name} — Paid ₹${m.paid}</li>`;
+        });
+      }
+      membersHtml += "</ul></div>";
+
+      // Settlement summary
+      let settlementHtml = "";
+      if (trip.members.length > 0) {
+        const settleList = computeSettlements(balances);
+        if (settleList.length > 0) {
+          settlementHtml = "<div class='settlement-list'><h3>Settlement:</h3><ul>";
+          settleList.forEach(s => {
+            settlementHtml += `<li>${s}</li>`;
+          });
+          settlementHtml += "</ul></div>";
+        } else {
+          settlementHtml = "<div class='settlement-list'><p>All settled! No one owes anything.</p></div>";
+        }
+      }
+
+      tripDetailsElem.innerHTML = `
+        <h2>${trip.name}</h2>
+        ${billsHtml}
+        <p><strong>Total Amount:</strong> ₹${total.toFixed(2)}</p>
+        ${membersHtml}
+        <p><strong>Each Member Should Pay (Equal Split):</strong> ₹${share.toFixed(2)}</p>
+        ${settlementHtml}
+        <button class="add-members-btn">+ Add Member</button>
+        <button class="add-bill-btn">+ Add Bill</button>
+      `;
+
+      // Add event listeners for buttons
+      tripDetailsElem.querySelector(".add-members-btn").addEventListener("click", openMembersModal);
+      tripDetailsElem.querySelector(".add-bill-btn").addEventListener("click", openBillModal);
+    }
+
     function createTripElement(trip) {
       const li = document.createElement("li");
       li.dataset.id = trip.id;
 
-      li.innerHTML = `
-        <span class="trip-name">${trip.name} (₹${trip.total})</span>
-        <button class="rename-btn" title="Rename Trip">✏️</button>
-        <button class="delete-btn" title="Delete Trip">🗑️</button>
-      `;
+      const nameSpan = document.createElement("span");
+      nameSpan.className = "trip-name";
+      nameSpan.textContent = trip.name;
+      li.appendChild(nameSpan);
 
-      const tripNameSpan = li.querySelector(".trip-name");
+      const renameBtn = document.createElement("button");
+      renameBtn.className = "rename-btn";
+      renameBtn.textContent = "✏️";
+      li.appendChild(renameBtn);
 
-      // Show trip details when clicking name
-      tripNameSpan.addEventListener("click", () => {
+      const deleteBtn = document.createElement("button");
+      deleteBtn.className = "delete-btn";
+      deleteBtn.textContent = "🗑️";
+      li.appendChild(deleteBtn);
+
+      nameSpan.addEventListener("click", () => {
         selectedTripId = trip.id;
         showTripDetails(trip);
         highlightSelectedTrip(trip.id);
       });
 
-      // Rename trip
-      li.querySelector(".rename-btn").addEventListener("click", e => {
+      renameBtn.addEventListener("click", e => {
         e.stopPropagation();
         const newName = prompt("Enter new trip name:", trip.name);
         if (newName && newName.trim() !== "") {
           trip.name = newName.trim();
-          tripNameSpan.textContent = `${trip.name} (₹${trip.total})`;
-          // If this trip is selected, update details header too
+          nameSpan.textContent = trip.name;
           if (selectedTripId === trip.id) showTripDetails(trip);
         }
       });
 
-      // Delete trip
-      li.querySelector(".delete-btn").addEventListener("click", e => {
+      deleteBtn.addEventListener("click", e => {
         e.stopPropagation();
         if (confirm(`Delete "${trip.name}"?`)) {
-          // Remove from trips array
           trips = trips.filter(t => t.id !== trip.id);
           li.remove();
-
-          // If deleted trip is selected, clear details
           if (selectedTripId === trip.id) {
             selectedTripId = null;
             tripDetailsElem.innerHTML = `<div class="welcome-message">Welcome to SplitSmart!</div>`;
           }
-
-          recalcGlobalAmounts();
         }
       });
 
       return li;
     }
 
-    // Highlight selected trip in sidebar
-    function highlightSelectedTrip(id) {
-      [...tripListElem.children].forEach(li => {
-        li.style.backgroundColor = (parseInt(li.dataset.id) === id) ? "#b2ebf2" : "#e0f7fa";
-      });
-    }
-
-    // Show trip details in main panel
-    function showTripDetails(trip) {
-      // Build bills list HTML
-      let billsHtml = "<div class='bills-list'><h3>Bills:</h3><ul>";
-      trip.bills.forEach(bill => {
-        billsHtml += `<li><span>${bill.name}</span><span>₹${bill.amount}</span></li>`;
-      });
-      billsHtml += "</ul></div>";
-
-      tripDetailsElem.innerHTML = `
-        <h2>${trip.name}</h2>
-        <p><strong>Total Amount:</strong> ₹${trip.total}</p>
-        <p><strong>Your Share:</strong> ₹${Math.floor(trip.total / 2)}</p>
-        <p><strong>To Collect from Others:</strong> ₹${Math.ceil(trip.total / 2)}</p>
-        ${billsHtml}
-        <button class="add-bill-btn">+ Add Bill</button>
-      `;
-
-      // Add event listener for add bill button
-      const addBillBtn = tripDetailsElem.querySelector(".add-bill-btn");
-      addBillBtn.addEventListener("click", () => {
-        openBillModal();
-      });
-    }
-
-    // Update trip total and UI after adding bill
-    function addBillToTrip(tripId, billName, billAmount) {
-      const trip = trips.find(t => t.id === tripId);
-      if (!trip) return;
-
-      trip.bills.push({ name: billName, amount: billAmount });
-      trip.total += billAmount;
-
-      // Update sidebar trip display
-      const tripLi = [...tripListElem.children].find(li => parseInt(li.dataset.id) === tripId);
-      if (tripLi) {
-        const nameSpan = tripLi.querySelector(".trip-name");
-        nameSpan.textContent = `${trip.name} (₹${trip.total})`;
-      }
-
-      // If this trip is selected, update details panel
-      if (selectedTripId === tripId) {
-        showTripDetails(trip);
-      }
-
-      recalcGlobalAmounts();
-    }
-
-    // Initialize with given trips and bills
-    function initTrips() {
+    document.addEventListener("DOMContentLoaded", () => {
+      // Init some trips
       const initialTrips = [
-        { name: "Goa Trip", amount: 1200 },
-        { name: "Manali Trip", amount: 980 },
-        { name: "Office Lunch", amount: 450 }
+        { name: "Goa Trip", bills: [{ name: "Initial Bill", amount: 1200 }], members: [{ name: "Alice", paid: 500 }, { name: "Bob", paid: 700 }], total: 1200 },
+        { name: "Manali Trip", bills: [{ name: "Initial Bill", amount: 980 }], members: [], total: 980 },
+        { name: "Office Lunch", bills: [{ name: "Initial Bill", amount: 450 }], members: [], total: 450 }
       ];
-
-      initialTrips.forEach(({ name, amount }) => {
-        const newTrip = {
-          id: tripIdCounter++,
-          name,
-          bills: [{ name: "Initial Amount", amount }],
-          total: amount
-        };
-        trips.push(newTrip);
-        const li = createTripElement(newTrip);
+      initialTrips.forEach(trip => {
+        trip.id = tripIdCounter++;
+        trips.push(trip);
+        const li = createTripElement(trip);
         tripListElem.appendChild(li);
       });
 
-      recalcGlobalAmounts();
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      initTrips();
-
-      // Add Trip Form submit
+      // Add Trip
       document.getElementById("tripForm").addEventListener("submit", e => {
         e.preventDefault();
         const name = document.getElementById("tripName").value.trim();
         const amount = parseFloat(document.getElementById("tripAmount").value);
-
         if (!name || isNaN(amount) || amount <= 0) {
-          alert("Please enter a valid trip name and amount.");
+          alert("Enter valid name and amount");
           return;
         }
-
         const newTrip = {
           id: tripIdCounter++,
           name,
-          bills: [{ name: "Initial Amount", amount }],
+          bills: [{ name: "Initial Bill", amount }],
+          members: [],
           total: amount
         };
-
         trips.push(newTrip);
         const li = createTripElement(newTrip);
         tripListElem.appendChild(li);
-
-        recalcGlobalAmounts();
         closeTripModal();
       });
 
-      // Add Bill Form submit
-      document.getElementById("billForm").addEventListener("submit", e => {
+      // Add Member
+      document.getElementById("membersForm").addEventListener("submit", e => {
         e.preventDefault();
-
-        const billName = document.getElementById("billName").value.trim();
-        const billAmount = parseFloat(document.getElementById("billAmount").value);
-
-        if (!billName || isNaN(billAmount) || billAmount <= 0) {
-          alert("Please enter a valid bill description and amount.");
+        const name = document.getElementById("memberName").value.trim();
+        const paid = parseFloat(document.getElementById("memberPaid").value);
+        if (!name || isNaN(paid) || paid < 0) {
+          alert("Enter valid member data");
           return;
         }
+        const trip = trips.find(t => t.id === selectedTripId);
+        if (!trip) return;
+        trip.members.push({ name, paid });
+        showTripDetails(trip);
+        closeMembersModal();
+      });
 
-        addBillToTrip(selectedTripId, billName, billAmount);
+      // Add Bill
+      document.getElementById("billForm").addEventListener("submit", e => {
+        e.preventDefault();
+        const name = document.getElementById("billName").value.trim();
+        const amount = parseFloat(document.getElementById("billAmount").value);
+        if (!name || isNaN(amount) || amount <= 0) {
+          alert("Enter valid bill");
+          return;
+        }
+        const trip = trips.find(t => t.id === selectedTripId);
+        if (!trip) return;
+        trip.bills.push({ name, amount });
+        showTripDetails(trip);
         closeBillModal();
       });
 
-      // Close modals when clicking outside modal content
-      window.onclick = function(event) {
-        if (event.target === tripModal) closeTripModal();
-        if (event.target === billModal) closeBillModal();
+      // Close modals when clicking outside
+      window.onclick = event => {
+        if (event.target === document.getElementById("tripModal")) closeTripModal();
+        if (event.target === document.getElementById("membersModal")) closeMembersModal();
+        if (event.target === document.getElementById("billModal")) closeBillModal();
       };
     });
   </script>
