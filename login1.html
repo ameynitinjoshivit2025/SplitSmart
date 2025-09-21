@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>SmartSplit – Login & Sign Up</title>
+
+  <!-- Google Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bungee+Inline&family=Pacifico&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #ffffff, #147714);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #333;
+    }
+    .login-card {
+      background: #fff;
+      width: 300px;
+      padding: 1.75rem 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+      text-align: center;
+    }
+    .logo {
+      width: 70px;
+      margin: 0 auto 1rem;
+    }
+    .logo img {
+      width: 100%;
+      display: block;
+    }
+    h2 {
+      font-size: 1rem;
+      color: #555;
+      margin-bottom: 1rem;
+      font-weight: 400;
+    }
+    form { text-align: left; }
+    .form-group {
+      margin-bottom: 0.9rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.2rem;
+      font-weight: 600;
+      color: #333;
+      font-size: 0.9rem;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 0.5rem 0.6rem;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      font-size: 0.9rem;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus {
+      border-color: #feb236;
+      outline: none;
+    }
+    .error-msg {
+      font-size: 0.8rem;
+      color: #d62828;
+      margin-top: 0.2rem;
+      display: none;
+    }
+    .btn {
+      width: 100%;
+      padding: 0.6rem;
+      background: #ff5e00;
+      border: none;
+      border-radius: 5px;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: #d1c7c1; }
+    .forgot,
+    .toggle-form {
+      margin-top: 0.8rem;
+      font-size: 0.8rem;
+      text-align: center;
+    }
+    .forgot a,
+    .toggle-form a {
+      color: #2a2a72;
+      text-decoration: none;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .forgot a:hover,
+    .toggle-form a:hover {
+      text-decoration: underline;
+    }
+    #signUpForm { display: none; }
+  </style>
+</head>
+<body>
+
+  <div class="login-card">
+    <div class="logo">
+      <img src="file:///C:/Users/AMEY/Downloads/Image.jpg" alt="SmartSplit Logo">
+    </div>
+
+    <!-- Keep only the tagline -->
+    <h2>Get splitting your bills!</h2>
+
+    <!-- LOGIN FORM -->
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="loginUser">Username</label>
+        <input type="text" id="loginUser" placeholder="Enter username">
+        <div class="error-msg" id="loginUserError">Please enter your username.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="loginPass">Password</label>
+        <input type="password" id="loginPass" placeholder="Enter password">
+        <div class="error-msg" id="loginPassError">Please enter a valid password.</div>
+      </div>
+
+      <button type="submit" class="btn">Sign In</button>
+
+      <div class="forgot">
+        <a href="#" id="forgotLink">Forgot Password?</a>
+      </div>
+
+      <div class="toggle-form">
+        Don’t have an account? <a id="signUpLink">Sign Up</a>
+      </div>
+    </form>
+
+    <!-- SIGN UP FORM -->
+    <form id="signUpForm">
+      <h2>Create your account</h2>
+
+      <div class="form-group">
+        <label for="signUser">Username</label>
+        <input type="text" id="signUser" placeholder="Enter username">
+        <div class="error-msg" id="signUserError">Please enter a username.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="signMobile">Mobile</label>
+        <input type="tel" id="signMobile" placeholder="Enter mobile number">
+        <div class="error-msg" id="signMobileError">Please enter a mobile number.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="signEmail">Email</label>
+        <input type="email" id="signEmail" placeholder="Enter email address">
+        <div class="error-msg" id="signEmailError">Please enter a valid email.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="signPass">Password</label>
+        <input type="password" id="signPass" placeholder="Enter password">
+        <div class="error-msg" id="signPassError">Please enter a password.</div>
+      </div>
+
+      <button type="submit" class="btn">Sign Up</button>
+
+      <div class="toggle-form">
+        Already have an account? <a id="signInLink">Sign In</a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById('loginForm');
+    const signUpForm = document.getElementById('signUpForm');
+    const signUpLink = document.getElementById('signUpLink');
+    const signInLink = document.getElementById('signInLink');
+    const forgotLink = document.getElementById('forgotLink');
+
+    signUpLink.addEventListener('click', e => {
+      e.preventDefault();
+      loginForm.style.display = 'none';
+      signUpForm.style.display = 'block';
+    });
+
+    signInLink.addEventListener('click', e => {
+      e.preventDefault();
+      signUpForm.style.display = 'none';
+      loginForm.style.display = 'block';
+    });
+
+    forgotLink.addEventListener('click', e => {
+      e.preventDefault();
+      const email = prompt('Enter your email for reset link:');
+      if (email && email.trim()) {
+        alert(`Reset link sent to ${email.trim()}`);
+      }
+    });
+
+    loginForm.addEventListener('submit', e => {
+  e.preventDefault();
+  let valid = true;
+
+  [['loginUser','loginUserError'], ['loginPass','loginPassError']].forEach(([id, err]) => {
+    const input = document.getElementById(id);
+    document.getElementById(err).style.display = input.value.trim() ? 'none' : 'block';
+    if (!input.value.trim()) valid = false;
+  });
+
+  if (!valid) return;
+
+  // ✅ Store username in localStorage
+  localStorage.setItem("username", document.getElementById('loginUser').value.trim());
+
+  // ✅ Redirect to home page
+  window.location.href = "file:///C:/VIT/Hacakathon/Devjams/Untitled-1.html#";
+});
+
+    signUpForm.addEventListener('submit', e => {
+      e.preventDefault();
+      let valid = true;
+
+      [
+        ['signUser','signUserError'],
+        ['signMobile','signMobileError'],
+        ['signEmail','signEmailError'],
+        ['signPass','signPassError']
+      ].forEach(([id, err]) => {
+        const input = document.getElementById(id);
+        document.getElementById(err).style.display = input.value.trim() ? 'none' : 'block';
+        if (!input.value.trim()) valid = false;
+      });
+
+      if (!valid) return;
+      alert(`Account created for ${document.getElementById('signUser').value.trim()}!`);
+      signUpForm.reset();
+      signUpForm.style.display = 'none';
+      loginForm.style.display = 'block';
+    });
+  </script>
+</body>
+</html>
