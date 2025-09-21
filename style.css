@@ -1,0 +1,64 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f4f3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.form-container {
+    background-color: rgba(255, 255, 255, 0.756);
+    padding: 60px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px #aaa;
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+}
+
+.hidden {
+    display: none;
+}
+
+h2 {
+    text-align: center;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+button {
+    padding: 10px;
+    background-color: #1a9c09;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+p {
+    text-align: center;
+}
+
+a {
+    color: #007bff;
+    cursor: pointer;
+}
+.app-title {
+    text-align: center;
+    font-size: 35px;
+    color: #007bff;
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
