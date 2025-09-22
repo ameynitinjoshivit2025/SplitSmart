@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SplitSmart</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary-color: #00695c;
+      --accent-color: #26a69a;
+      --bg-light: #f5f7fa;
+      --bg-white: #ffffff;
+      --text-color: #263238;
+      --muted-text: #777777;
+
+      --danger-color: #d32f2f;
+      --success-color: #388e3c;
+
+      --switch-width: 60px;
+      --switch-height: 30px;
+      --switch-padding: 3px;
+      --switch-bg-light: #ccc;
+      --switch-bg-dark: #37474f;
+      --switch-thumb-bg: #ffffff;
+      --switch-transition-time: 0.25s;
+
+      --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      --hover-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    [data-theme="dark"] {
+      --bg-light: #121212;
+      --bg-white: #1e1e1e;
+      --text-color: #e0e0e0;
+      --muted-text: #aaaaaa;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      background: var(--bg-light);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      background: linear-gradient(120deg, var(--accent-color), var(--primary-color));
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      position: relative;
+      z-index: 10;
+    }
+    .app-name {
+      font-weight: 700;
+      font-size: 1.9rem;
+      cursor: default;
+    }
+
+    .account-dropdown {
+      position: relative;
+    }
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 100%;
+      background-color: var(--bg-white);
+      min-width: 160px;
+      box-shadow: var(--hover-shadow);
+      border-radius: 5px;
+      overflow: hidden;
+      z-index: 1000;
+      transition: background 0.3s, color 0.3s;
+    }
+    .dropdown-content a {
+      color: var(--text-color);
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      transition: background 0.2s;
+    }
+    .dropdown-content a:hover {
+      background-color: var(--bg-light);
+    }
+    .account-dropdown .show {
+      display: block;
+    }
+    .account-button {
+      background-color: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 10px 16px;
+      font-size: 1rem;
+      border: 1px solid rgba(255,255,255,0.55);
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.2s;
+    }
+    .account-button:hover {
+      background-color: rgba(255, 255, 255, 0.30);
+      transform: scale(1.03);
+    }
+
+    .theme-switch {
+      position: relative;
+      display: inline-block;
+      width: var(--switch-width);
+      height: var(--switch-height);
+      margin-right: 20px;
+    }
+    .theme-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--switch-bg-light);
+      border-radius: var(--switch-height);
+      cursor: pointer;
+      transition: background-color var(--switch-transition-time);
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: calc(var(--switch-height) - 2 * var(--switch-padding));
+      width: calc(var(--switch-height) - 2 * var(--switch-padding));
+      left: var(--switch-padding);
+      bottom: var(--switch-padding);
+      background-color: var(--switch-thumb-bg);
+      border-radius: 50%;
+      transition: transform var(--switch-transition-time);
+    }
+    .slider .icon {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      transition: left var(--switch-transition-time), right var(--switch-transition-time), opacity var(--switch-transition-time);
+    }
+    .slider .icon.sun {
+      left: 8px;
+      opacity: 1;
+    }
+    .slider .icon.moon {
+      right: 8px;
+      opacity: 0;
+    }
+    input:checked + .slider {
+      background-color: var(--switch-bg-dark);
+    }
+    input:checked + .slider:before {
+      transform: translateX(calc(var(--switch-width) - var(--switch-height)));
+    }
+    input:checked + .slider .icon.sun {
+      opacity: 0;
+    }
+    input:checked + .slider .icon.moon {
+      opacity: 1;
+    }
+
+    .container {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 80px);
+      overflow: hidden;
+    }
+    .sidebar {
+      width: 300px;
+      background-color: var(--bg-white);
+      border-right: 1px solid #ccc;
+      padding: 20px;
+      overflow-y: auto;
+      transition: background 0.3s, color 0.3s;
+    }
+    .sidebar h2 {
+      font-size: 1.7rem;
+      margin-bottom: 24px;
+    }
+    .trip-list {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 30px;
+    }
+    .trip-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding: 14px 18px;
+      background-color: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-left: 6px solid var(--primary-color);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: var(--card-shadow);
+    }
+    .trip-list li:hover {
+      background-color: var(--bg-light);
+      transform: translateX(4px);
+      box-shadow: var(--hover-shadow);
+    }
+    [data-theme="dark"] .sidebar {
+      background-color: var(--bg-white);
+    }
+    [data-theme="dark"] .trip-list li {
+      background-color: var(--bg-white);
+      border-color: var(--accent-color);
+    }
+
+    .trip-name {
+      flex: 1;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 1rem;
+    }
+    .rename-btn, .delete-btn {
+      margin-left: 6px;
+      padding: 6px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      background: transparent;
+      font-size: 1rem;
+      transition: color 0.2s, transform 0.2s;
+    }
+    .rename-btn:hover {
+      color: var(--primary-color);
+      transform: scale(1.2);
+    }
+    .delete-btn:hover {
+      color: var(--danger-color);
+      transform: scale(1.2);
+    }
+
+    .add-trip-btn {
+      display: inline-block;
+      padding: 12px 20px;
+      margin-top: 20px;
+      background-color: var(--primary-color);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: transform 0.25s ease, background-color 0.2s;
+      box-shadow: var(--card-shadow);
+    }
+    .add-trip-btn:hover {
+      transform: scale(1.05);
+      background-color: var(--accent-color);
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .trip-details {
+      padding: 30px;
+      background-color: var(--bg-white);
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
+      max-width: 720px;
+      width: 100%;
+      text-align: left;
+      animation: fadeInUp 0.3s ease-out;
+      transition: background 0.3s, color 0.3s;
+    }
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .trip-details h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: var(--text-color);
+    }
+    .welcome-message {
+      font-size: 2.2rem;
+      font-weight: 600;
+      text-align: center;
+      margin-top: 60px;
+      color: var(--muted-text);
+    }
+
+    .summary-card {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 24px;
+    }
+    .summary-card .card {
+      flex: 1;
+      margin: 0 10px;
+      padding: 16px;
+      background: var(--bg-white);
+      border-radius: 10px;
+      box-shadow: var(--card-shadow);
+      text-align: center;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .summary-card .card:hover {
+      transform: scale(1.02);
+      box-shadow: var(--hover-shadow);
+    }
+    .summary-card .card h4 {
+      margin: 0;
+      font-size: 1.1rem;
+      color: var(--muted-text);
+    }
+    .summary-card .card p {
+      margin: 8px 0 0;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .bills-list {
+      margin-top: 20px;
+    }
+    .bills-list h3 {
+      margin-bottom: 16px;
+      font-size: 1.5rem;
+    }
+    .bills-list ul {
+      list-style: none;
+      padding: 0;
+    }
+    .bills-list li {
+      background: #e0f2f1;
+      margin-bottom: 12px;
+      padding: 16px 20px;
+      border-radius: 10px;
+      transition: all 0.25s ease;
+      box-shadow: var(--card-shadow);
+    }
+    .bills-list li:hover {
+      transform: translateX(4px);
+      box-shadow: var(--hover-shadow);
+    }
+
+    .bill-members-list {
+      margin-top: 10px;
+      padding-left: 20px;
+    }
+    .bill-members-list li {
+      font-size: 0.95rem;
+      padding: 4px 0;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .add-bill-btn {
+      margin-top: 24px;
+      padding: 12px 20px;
+      background-color: var(--primary-color);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: transform 0.25s ease, background-color 0.2s;
+      box-shadow: var(--card-shadow);
+      position: relative;
+    }
+    .add-bill-btn:hover {
+      transform: scale(1.05);
+      background-color: var(--accent-color);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+      backdrop-filter: blur(2px);
+    }
+    .modal-content {
+      background: var(--bg-white);
+      margin: 5% auto;
+      padding: 30px;
+      border-radius: 12px;
+      width: 500px;
+      max-width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: var(--card-shadow);
+      animation: fadeInScale 0.3s ease-out;
+      transition: background 0.3s, color 0.3s;
+    }
+    @keyframes fadeInScale {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .close {
+      color: #888;
+      float: right;
+      font-size: 1.6rem;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .close:hover {
+      color: var(--text-color);
+    }
+    form label {
+      margin-top: 12px;
+      font-weight: 500;
+      display: block;
+      color: var(--text-color);
+    }
+    form input, form select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      transition: background 0.3s, color 0.3s, border-color 0.3s;
+      background-color: var(--bg-white);
+      color: var(--text-color);
+    }
+    form input:focus, form select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+    form button {
+      margin-top: 24px;
+      padding: 12px;
+      background-color: var(--primary-color);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.2s;
+      width: 100%;
+    }
+    form button:hover {
+      background-color: var(--accent-color);
+      transform: scale(1.02);
+    }
+
+    .member-paid-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      align-items: center;
+    }
+    .member-paid-row input[type="text"] {
+      flex: 3;
+      padding: 10px;
+    }
+    .member-paid-row input[type="number"] {
+      flex: 1.2;
+      padding: 10px;
+    }
+    .remove-member-paid {
+      background: var(--danger-color);
+      border: none;
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.9rem;
+      transition: background 0.2s, transform 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .remove-member-paid:hover {
+      background: #b71c1c;
+      transform: scale(1.1);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #ccc;
+      }
+      main {
+        padding: 10px;
+      }
+      .modal-content {
+        width: 90%;
+      }
+      .summary-card {
+        flex-direction: column;
+      }
+      .summary-card .card {
+        margin: 10px 0;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="app-name">SplitSmart</div>
+    <div style="display: flex; align-items: center; gap: 10px; position: relative;">
+      <label class="theme-switch">
+        <input type="checkbox" id="theme-checkbox" />
+        <span class="slider">
+          <span class="icon sun">☀️</span>
+          <span class="icon moon">🌙</span>
+        </span>
+      </label>
+      <div class="account-dropdown">
+        <button class="account-button" onclick="toggleAccountDropdown()">👤 Account ▾</button>
+        <div class="dropdown-content" id="accountDropdown">
+          <a href="#">Profile</a>
+          <a href="#">Settings</a>
+          <a href="#">Logout</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <aside class="sidebar">
+      <h2>My Trips</h2>
+      <ul class="trip-list" id="trip-list"></ul>
+      <button class="add-trip-btn" onclick="openTripModal()">➕ Add Trip</button>
+    </aside>
+
+    <main>
+      <div id="tripDetails" class="trip-details">
+        <div class="welcome-message">Welcome to SplitSmart!</div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modals -->
+  <div id="tripModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeTripModal()">&times;</span>
+      <h2>Add New Trip</h2>
+      <form id="tripForm">
+        <label for="tripName">Trip Name:</label>
+        <input type="text" id="tripName" required placeholder="e.g. Weekend Getaway" />
+        <button type="submit">Add Trip</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="billModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeBillModal()">&times;</span>
+      <h2>Add Bill</h2>
+      <form id="billForm">
+        <label for="billName">Bill Description:</label>
+        <input type="text" id="billName" required placeholder="e.g. Dinner at Restaurant" />
+
+        <h3>Items</h3>
+        <div class="item-heading-row" style="display: flex; gap: 10px; margin-bottom: 5px; font-weight: bold; color: var(--muted-text);">
+          <div style="flex: 2;">Item Name</div>
+          <div style="flex: 1;">Qty</div>
+          <div style="flex: 1;">Price/Unit</div>
+        </div>
+        <div id="itemList"></div>
+        <button type="button" onclick="addItemRow()">➕ Add Item</button>
+        <p style="margin-top: 12px; font-weight: 600;">Total: ₹<span id="liveTotal">0.00</span></p>
+
+        <h3>Members Who Paid</h3>
+        <div id="membersPaidContainer"></div>
+        <button type="button" class="add-member-paid-btn" id="addMemberPaidBtn">➕ Add Member</button>
+
+        <input type="hidden" id="billTotalAmount" value="0" />
+
+        <button type="submit">Add Bill</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Utility: check if localStorage is available
+    function storageAvailable(type) {
+      try {
+        var storage = window[type],
+            x = "__storage_test__";
+        storage.setItem(x, x);
+        storage.removeItem(x);
+        return true;
+      }
+      catch(e) {
+        return false;
+      }
+    }
+
+    // Toast notification
+    function showToast(msg, duration = 2000) {
+      let toast = document.createElement("div");
+      toast.textContent = msg;
+      toast.style.position = "fixed";
+      toast.style.bottom = "30px";
+      toast.style.left = "50%";
+      toast.style.transform = "translateX(-50%)";
+      toast.style.background = getComputedStyle(document.documentElement).getPropertyValue("--primary-color");
+      toast.style.color = "#fff";
+      toast.style.padding = "12px 24px";
+      toast.style.borderRadius = "24px";
+      toast.style.boxShadow = "0 2px 8px rgba(0,0,0,0.2)";
+      toast.style.opacity = "0";
+      toast.style.transition = "opacity 0.3s ease, bottom 0.3s ease";
+
+      document.body.appendChild(toast);
+      // Force reflow to enable animation
+      void toast.offsetWidth;
+      toast.style.opacity = "1";
+      toast.style.bottom = "50px";
+
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.bottom = "30px";
+        setTimeout(() => toast.remove(), 300);
+      }, duration);
+    }
+
+    // State + persistence
+    let trips = [];
+    let selectedTripId = null;
+    let tripIdCounter = 1;
+    let billIdCounter = 1;
+
+    const tripListElem = document.getElementById("trip-list");
+    const tripDetailsElem = document.getElementById("tripDetails");
+    const themeCheckbox = document.getElementById('theme-checkbox');
+
+    // Load from localStorage on startup
+    function loadState() {
+      if (!storageAvailable('localStorage')) return;
+      const saved = localStorage.getItem("splitSmartData");
+      if (saved) {
+        try {
+          const obj = JSON.parse(saved);
+          trips = obj.trips || [];
+          selectedTripId = obj.selectedTripId || null;
+          tripIdCounter = obj.tripIdCounter || (trips.length ? Math.max(...trips.map(t=>t.id))+1 : 1);
+          billIdCounter = obj.billIdCounter || 1;
+        } catch(e){
+          console.error("Error parsing saved data", e);
+        }
+      }
+      const savedTheme = localStorage.getItem("splitSmartTheme");
+      if (savedTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        themeCheckbox.checked = true;
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        themeCheckbox.checked = false;
+      }
+    }
+
+    function saveState() {
+      if (!storageAvailable('localStorage')) return;
+      const obj = {
+        trips,
+        selectedTripId,
+        tripIdCounter,
+        billIdCounter
+      };
+      localStorage.setItem("splitSmartData", JSON.stringify(obj));
+    }
+
+    // Theme toggle
+    themeCheckbox.addEventListener('change', () => {
+      if (themeCheckbox.checked) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('splitSmartTheme', 'dark');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        localStorage.setItem('splitSmartTheme', 'light');
+      }
+    });
+
+    function toggleAccountDropdown() {
+      document.getElementById("accountDropdown").classList.toggle("show");
+    }
+
+    // Modal controls
+    function openTripModal() { document.getElementById("tripModal").style.display = "block"; }
+    function closeTripModal() {
+      document.getElementById("tripModal").style.display = "none";
+      document.getElementById("tripForm").reset();
+    }
+    function openBillModal() {
+      if (selectedTripId === null) {
+        showToast("Select a trip first");
+        return;
+      }
+      document.getElementById("billModal").style.display = "block";
+      resetBillForm();
+    }
+    function closeBillModal() {
+      document.getElementById("billModal").style.display = "none";
+      document.getElementById("billForm").reset();
+      clearMemberPaidRows();
+      clearItemRows();
+      updateBillTotalFromItems();
+    }
+
+    function clearMemberPaidRows() {
+      const container = document.getElementById("membersPaidContainer");
+      container.querySelectorAll(".member-paid-row").forEach(row => row.remove());
+    }
+    function clearItemRows() {
+      const container = document.getElementById("itemList");
+      container.querySelectorAll(".member-paid-row").forEach(row => row.remove());
+    }
+
+    function addMemberPaidRow(name = '', amount = '') {
+      const container = document.getElementById("membersPaidContainer");
+      const row = document.createElement("div");
+      row.className = "member-paid-row";
+
+      const nameInput = document.createElement("input");
+      nameInput.type = "text";
+      nameInput.placeholder = "Member Name";
+      nameInput.value = name;
+      nameInput.required = true;
+
+      const amountInput = document.createElement("input");
+      amountInput.type = "number";
+      amountInput.placeholder = "Amount Paid";
+      amountInput.min = "0";
+      amountInput.step = "0.01";
+      amountInput.value = amount;
+      amountInput.required = true;
+
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "remove-member-paid";
+      removeBtn.textContent = "×";
+      removeBtn.title = "Remove";
+      removeBtn.onclick = () => { row.remove(); };
+
+      row.appendChild(nameInput);
+      row.appendChild(amountInput);
+      row.appendChild(removeBtn);
+      container.appendChild(row);
+    }
+
+    function addItemRow(name = '', quantity = '', price = '') {
+      const container = document.getElementById('itemList');
+      const row = document.createElement('div');
+      row.className = 'member-paid-row';
+
+      const itemName = document.createElement('input');
+      itemName.type = 'text';
+      itemName.placeholder = 'Item Name';
+      itemName.value = name;
+      itemName.required = true;
+
+      const itemQty = document.createElement('input');
+      itemQty.type = 'number';
+      itemQty.placeholder = 'Qty';
+      itemQty.min = '1';
+      itemQty.step = '1';
+      itemQty.value = quantity;
+      itemQty.required = true;
+
+      const itemPrice = document.createElement('input');
+      itemPrice.type = 'number';
+      itemPrice.placeholder = 'Price';
+      itemPrice.min = '0';
+      itemPrice.step = '0.01';
+      itemPrice.value = price;
+      itemPrice.required = true;
+
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'remove-member-paid';
+      removeBtn.textContent = "×";
+      removeBtn.title = "Remove";
+      removeBtn.onclick = () => {
+        row.remove();
+        updateBillTotalFromItems();
+      };
+
+      [itemName, itemQty, itemPrice].forEach(el => {
+        el.addEventListener('input', updateBillTotalFromItems);
+      });
+
+      row.appendChild(itemName);
+      row.appendChild(itemQty);
+      row.appendChild(itemPrice);
+      row.appendChild(removeBtn);
+      container.appendChild(row);
+
+      updateBillTotalFromItems();
+    }
+
+    function updateBillTotalFromItems() {
+      const rows = document.querySelectorAll('#itemList .member-paid-row');
+      let total = 0;
+      rows.forEach(row => {
+        const qty = parseFloat(row.children[1].value);
+        const price = parseFloat(row.children[2].value);
+        if (!isNaN(qty) && !isNaN(price)) {
+          total += qty * price;
+        }
+      });
+      const rounded = total.toFixed(2);
+      document.getElementById('billTotalAmount').value = rounded;
+      document.getElementById('liveTotal').innerText = rounded;
+    }
+
+    document.getElementById("addMemberPaidBtn").addEventListener("click", () => {
+      addMemberPaidRow();
+    });
+
+    // Core logic for trips & bills
+    document.getElementById("tripForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const name = document.getElementById("tripName").value.trim();
+      if (!name) { showToast("Enter valid trip name"); return; }
+      const newTrip = { id: tripIdCounter++, name, bills: [] };
+      trips.push(newTrip);
+      closeTripModal();
+      saveState();
+      renderTrips();
+      selectTrip(newTrip.id);
+      showToast("Trip added");
+    });
+
+    document.getElementById("billForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const billName = document.getElementById("billName").value.trim();
+      const billTotalAmount = parseFloat(document.getElementById("billTotalAmount").value);
+
+      if (!billName) { showToast("Enter bill description"); return; }
+      if (isNaN(billTotalAmount) || billTotalAmount <= 0) { showToast("Enter valid total amount"); return; }
+
+      const memberPaidRows = Array.from(document.querySelectorAll("#membersPaidContainer .member-paid-row"));
+      if (memberPaidRows.length === 0) { showToast("Add at least one member who paid"); return; }
+
+      const membersPaid = [];
+      for (const row of memberPaidRows) {
+        const nameInput = row.querySelector('input[type="text"]');
+        const amountInput = row.querySelector('input[type="number"]');
+        const memberName = nameInput.value.trim();
+        const paidAmount = parseFloat(amountInput.value);
+
+        if (!memberName) { showToast("Member name cannot be empty"); return; }
+        if (isNaN(paidAmount) || paidAmount < 0) { showToast(`Invalid amount for ${memberName}`); return; }
+        membersPaid.push({ name: memberName, amount: paidAmount });
+      }
+
+      const totalPaid = membersPaid.reduce((acc, mp) => acc + mp.amount, 0);
+      if (Math.abs(totalPaid - billTotalAmount) > 0.01) {
+        showToast(`Total paid by members (${totalPaid.toFixed(2)}) does not match bill amount (${billTotalAmount.toFixed(2)})`);
+        return;
+      }
+
+      const trip = trips.find(t => t.id === selectedTripId);
+      if (!trip) { showToast("Selected trip not found"); return; }
+
+      trip.bills.push({
+        id: billIdCounter++,
+        description: billName,
+        totalAmount: billTotalAmount,
+        membersPaid,
+      });
+
+      closeBillModal();
+      saveState();
+      renderTripDetails(selectedTripId);
+      showToast("Bill added");
+    });
+
+    function calculateBalances(trip) {
+      const allMembersSet = new Set();
+      trip.bills.forEach(bill => bill.membersPaid.forEach(mp => allMembersSet.add(mp.name)));
+      const allMembers = Array.from(allMembersSet);
+      const memberSpent = {};
+      allMembers.forEach(m=> memberSpent[m] = 0);
+
+      trip.bills.forEach(bill => {
+        const participants = Array.from(new Set(bill.membersPaid.map(mp => mp.name)));
+        const splitAmount = bill.totalAmount / participants.length;
+        // split everyone’s share
+        participants.forEach(participant => {
+          memberSpent[participant] -= splitAmount;
+        });
+        // plus what they paid
+        bill.membersPaid.forEach(mp => {
+          memberSpent[mp.name] += mp.amount;
+        });
+      });
+      return memberSpent;
+    }
+
+    function renderTrips() {
+      tripListElem.innerHTML = '';
+      trips.forEach(trip => {
+        const li = document.createElement("li");
+        const span = document.createElement("span");
+        span.className = "trip-name";
+        span.textContent = trip.name;
+        span.onclick = () => selectTrip(trip.id);
+
+        const renameBtn = document.createElement("button");
+        renameBtn.className = "rename-btn";
+        renameBtn.textContent = "✏️";
+        renameBtn.title = "Rename Trip";
+        renameBtn.onclick = e => { e.stopPropagation(); renameTrip(trip.id); };
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "delete-btn";
+        deleteBtn.textContent = "🗑️";
+        deleteBtn.title = "Delete Trip";
+        deleteBtn.onclick = e => { e.stopPropagation(); deleteTrip(trip.id); };
+
+        li.appendChild(span);
+        li.appendChild(renameBtn);
+        li.appendChild(deleteBtn);
+        tripListElem.appendChild(li);
+      });
+    }
+
+    function selectTrip(tripId) {
+      selectedTripId = tripId;
+      saveState();
+      renderTripDetails(tripId);
+    }
+
+    function renameTrip(tripId) {
+      const newName = prompt("Enter new trip name:");
+      if (!newName) return;
+      const trip = trips.find(t => t.id === tripId);
+      if (trip) {
+        trip.name = newName.trim();
+        saveState();
+        renderTrips();
+        if (selectedTripId === tripId) renderTripDetails(tripId);
+        showToast("Trip renamed");
+      }
+    }
+
+    function deleteTrip(tripId) {
+      if (!confirm("Are you sure you want to delete this trip?")) return;
+      trips = trips.filter(t => t.id !== tripId);
+      if (selectedTripId === tripId) {
+        selectedTripId = null;
+        tripDetailsElem.innerHTML = '<div class="welcome-message">Welcome to SplitSmart!</div>';
+      }
+      saveState();
+      renderTrips();
+      showToast("Trip deleted");
+    }
+
+    function renderTripDetails(tripId) {
+      const trip = trips.find(t => t.id === tripId);
+      if (!trip) {
+        tripDetailsElem.innerHTML = '<div class="welcome-message">Trip not found.</div>';
+        return;
+      }
+
+      // Build summary card
+      const balances = calculateBalances(trip);
+      const totalSpent = trip.bills.reduce((acc, b) => acc + b.totalAmount, 0);
+      let highestOwed = null, highestReceivable = null;
+      Object.entries(balances).forEach(([member, bal]) => {
+        if (bal < 0) {
+          if (!highestOwed || bal < highestOwed.balance) highestOwed = { member, balance: bal };
+        }
+        if (bal > 0) {
+          if (!highestReceivable || bal > highestReceivable.balance) highestReceivable = { member, balance: bal };
+        }
+      });
+
+      let html = `<h2>${trip.name}</h2>`;
+
+      html += `
+        <div class="summary-card">
+          <div class="card">
+            <h4>Total Spent</h4>
+            <p>₹${totalSpent.toFixed(2)}</p>
+          </div>
+      `;
+
+      if (highestOwed) {
+        html += `
+          <div class="card">
+            <h4>Owes Most</h4>
+            <p>${highestOwed.member} owes ₹${(-highestOwed.balance).toFixed(2)}</p>
+          </div>
+        `;
+      }
+      if (highestReceivable) {
+        html += `
+          <div class="card">
+            <h4>Gets Most</h4>
+            <p>${highestReceivable.member} should receive ₹${highestReceivable.balance.toFixed(2)}</p>
+          </div>
+        `;
+      }
+      html += `</div>`;
+
+      if (trip.bills.length === 0) {
+        html += `<p>No bills added yet. 🧾</p>`;
+      } else {
+        html += `<div class="bills-list"><h3>Bills:</h3><ul>`;
+        trip.bills.forEach(bill => {
+          html += `<li>
+                    <strong>🧾 ${bill.description}</strong> — ₹${bill.totalAmount.toFixed(2)}
+                    <ul class="bill-members-list">`;
+          bill.membersPaid.forEach(mp => {
+            html += `<li><span>${mp.name}</span><span>₹${mp.amount.toFixed(2)}</span></li>`;
+          });
+          html += `</ul></li>`;
+        });
+        html += `</ul></div>`;
+      }
+
+      html += `<h3>Balances:</h3>`;
+      if (Object.keys(balances).length === 0) {
+        html += `<p>No members added yet.</p>`;
+      } else {
+        html += `<ul>`;
+        Object.entries(balances).forEach(([member, balance]) => {
+          if (balance > 0.01) {
+            html += `<li><strong>${member}</strong> <span style="color: var(--success-color)">receives ₹${balance.toFixed(2)}</span></li>`;
+          } else if (balance < -0.01) {
+            html += `<li><strong>${member}</strong> <span style="color: var(--danger-color)">owes ₹${(-balance).toFixed(2)}</span></li>`;
+          } else {
+            html += `<li><strong>${member}</strong> <span style="color: var(--muted-text)">is settled up</span></li>`;
+          }
+        });
+        html += `</ul>`;
+      }
+
+      html += `<button class="add-bill-btn" onclick="openBillModal()">➕ Add Bill</button>`;
+      tripDetailsElem.innerHTML = html;
+    }
+
+    // Initial load
+    loadState();
+    renderTrips();
+    if (selectedTripId !== null) {
+      renderTripDetails(selectedTripId);
+    }
+
+    // Close modals on outside click
+    window.addEventListener('click', event => {
+      const tripModal = document.getElementById("tripModal");
+      const billModal = document.getElementById("billModal");
+      if (event.target === tripModal) closeTripModal();
+      if (event.target === billModal) closeBillModal();
+    });
+
+  </script>
+</body>
+</html>
